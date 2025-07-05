@@ -2,3 +2,6 @@ librosa
 pygame
 gpiozero
 requests
+lgpio
+RPi.gpio
+pigpio
