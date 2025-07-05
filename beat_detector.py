@@ -3,7 +3,7 @@ import librosa
 import numpy as np
 import pygame
 import time
-from gpiozero import LED
+from gpiozero import PWMLED
 import argparse
 import requests
 import os
@@ -22,15 +22,14 @@ def play_music(file_path):
 
 def detect_high_modulation(file_path, threshold=0.1):
     """
-    Analyzes a music file to control an LED based on music intensity.
+    Analyzes a music file to control an LED's brightness based on music intensity.
     It checks the intensity every 200 milliseconds.
 
     Args:
         file_path (str): The path to the music file.
         threshold (float): The energy threshold for detecting high modulation.
     """
-    led = LED(LED_PIN)
-    led_state = False # Keep track of the current LED state
+    led = PWMLED(LED_PIN)
 
     try:
         # 1. Load the audio file
@@ -50,17 +49,11 @@ def detect_high_modulation(file_path, threshold=0.1):
         # 5. Play the music
         play_music(file_path)
 
-        # 6. Control the LED based on the music intensity
+        # 6. Control the LED brightness based on the music intensity
         for energy in rms:
-            new_state = energy > threshold
-            if new_state != led_state:
-                if new_state:
-                    led.on()
-                    print("High")
-                else:
-                    led.off()
-                led_state = new_state
-            
+            led.value = energy
+            if energy > threshold:
+                print(f"High (Brightness: {energy:.2f})")
             time.sleep(hop_duration) # Wait for the duration of the frame
 
     except Exception as e:
